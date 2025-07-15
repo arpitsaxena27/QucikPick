@@ -1,0 +1,134 @@
+.login-page {
+    display: flex !important;
+    height: 100vh !important;
+    background: url('../../assets/images/login_bg.jpg') no-repeat center center fixed;
+    background-size: cover;
+  }
+
+  .login-container {
+    position: relative;
+    width: 30%; /* Adjust width as needed */
+    height: 80vh; /* Adjust height as needed */
+    padding: 30px;
+    display: inline-flexbox; /* Enable Flexbox layout */
+    flex-direction: column; /* Stack items vertically */
+    align-items: center; /* Center items horizontally */
+    justify-content: center; /* Center items vertically */
+    background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent white background */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Slight shadow for depth */
+    border-radius: 5px; /* Rounded corners */
+    margin: 100px auto; /* Center container horizontally with auto margins */
+}
+
+.login-container {
+    left: 6%; /* Position the container slightly to the left */
+}
+
+.right-pane-container {
+    right: 6%; /* Position the container slightly to the right */
+}
+
+  .flip-container {
+    perspective: 1000px;
+  }
+  
+  .flipper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: 0.6s;
+  }
+  
+  .flipped .flipper {
+    transform: rotateY(180deg);
+  }
+  
+  .front, .back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+  }
+  
+  .back {
+    transform: rotateY(180deg);
+  }
+  
+  .login-form, .forgot-password-form, .create-account-form {
+    width: 100%;
+    max-width: 400px;
+  }
+  
+  .form-group {
+    margin-bottom: 15px;
+  }
+  
+  label {
+    display: block;
+    margin-bottom: 5px;
+  }
+  
+  input {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+  }
+  
+  .login-button, .reset-button, .create-button {
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .login-button:hover, .reset-button:hover, .create-button:hover {
+    background-color: #45a049;
+  }
+  
+  .form-options {
+    margin-bottom: 15px;
+  }
+  
+  .form-options a {
+    color: #007BFF;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  
+  .form-options a:hover {
+    text-decoration: underline;
+  }
+  
+  .right-pane-container {
+    position: relative; /* Adjust position based on your layout needs */
+    width: 30%; /* Slightly reduce width to give some space between containers */
+    height: 80vh; /* Set height to 70% of the viewport height */
+    padding: 30px;
+    display: flex; /* Use flexbox for centering content */
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent white background */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Slight shadow for depth */
+    border-radius: 5px; /* Rounded corners */
+    margin: 100px auto; /* Auto margin for centering horizontally */
+}
+
+.carousel .slide img {
+  animation: zoom 5s infinite;
+}
+
+@keyframes zoom {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
