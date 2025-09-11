@@ -29,7 +29,7 @@ function LeftSection({ updateCount }) {
       const [startY, setStartY] = useState(0);
       const [scrollLeft, setScrollLeft] = useState(0);
       const [scrollTop, setScrollTop] = useState(0);
-      const SERVER_URL = import.meta.env.SERVER_URL || "http://localhost:5000";
+      const SERVER_URL = import.meta.env.SERVER_URL;
 
       const [isPinMode, setIsPinMode] = useState(false);
       const [pins, setPins] = useState([]);

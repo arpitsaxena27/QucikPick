@@ -38,7 +38,7 @@ const RetailMap = forwardRef((props, ref) => {
       const [imageURL, setImageURL] = useState(null);
       const [isCvReady, setCvReady] = useState(false);
       const canvasRef = useRef(null);
-      const SERVER_URL = import.meta.env.SERVER_URL || "http://localhost:5000";
+      const SERVER_URL = import.meta.env.SERVER_URL;
       const dispatch = useDispatch();
       const retailerId = useSelector((state) => state.products.retailerId);
       const storeMartId = useSelector(selectMartId);
