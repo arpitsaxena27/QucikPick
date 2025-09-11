@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
 // Ensure the environment variable is loaded correctly
-const SERVER_URL = import.meta.env.SERVER_URL;
+const SERVER_URL = import.meta.env.VITE_SERVER_URL;
 
 // Fetch user role and retailerId
 export const fetchUserRole = createAsyncThunk(
