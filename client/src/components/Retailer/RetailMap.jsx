@@ -21,8 +21,7 @@ const RetailMap = forwardRef((props, ref) => {
             isPinMode,
             pins = [],
             onMapClick,
-            onMapLoad,
-            martId,
+            onMapLoad
       } = props;
 
       RetailMap.propTypes = {

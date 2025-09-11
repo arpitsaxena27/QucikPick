@@ -342,7 +342,7 @@ export default function Checkout() {
                                           color="text.secondary"
                                           sx={{ mb: 2 }}
                                     >
-                                          You will be redirected to Razorpay's
+                                          You will be redirected to Razorpay&apos;s
                                           secure payment gateway to complete
                                           your payment.
                                     </Typography>

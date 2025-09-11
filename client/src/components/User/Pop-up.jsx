@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
 import './Pop.css';  // Ensure this path is correct based on your project structure
+import PropTypes from 'prop-types';
+import { useState } from 'react';
 
 const Pop_up = ({ products = [] }) => {
   const [cart, setCart] = useState([]);
@@ -29,6 +30,10 @@ const Pop_up = ({ products = [] }) => {
 
   return (
     <div>
+      <button onClick={toggleCart} className="toggle-cart-button">
+        {isCartOpen ? 'Close Cart' : 'Open Cart'}
+      </button>
+
       <ul>
         {products.length > 0 ? (
           products.map((product) => (
@@ -88,6 +93,15 @@ const Pop_up = ({ products = [] }) => {
       )}
     </div>
   );
+};
+Pop_up.propTypes = {
+  products: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+      name: PropTypes.string.isRequired,
+      price: PropTypes.number.isRequired,
+    })
+  ),
 };
 
 export default Pop_up;

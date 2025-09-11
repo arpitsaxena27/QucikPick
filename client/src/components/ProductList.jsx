@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import PropTypes from "prop-types";
 import { useDispatch, useSelector } from "react-redux";
 import { Plus, Edit, Trash2 } from "lucide-react"; // Importing icons
 import {
@@ -783,6 +784,14 @@ const ProductList = ({
                   </Dialog>
             </>
       );
+};
+ProductList.propTypes = {
+      searchQuery: PropTypes.string,
+      selectedCategory: PropTypes.string,
+      sortOrder: PropTypes.string,
+      onProductClick: PropTypes.func.isRequired,
+      onAddToCart: PropTypes.func,
+      userRole: PropTypes.string,
 };
 
 export default ProductList;

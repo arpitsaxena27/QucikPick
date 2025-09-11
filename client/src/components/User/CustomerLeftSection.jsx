@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import PropTypes from "prop-types";
 import { useDispatch, useSelector } from "react-redux";
 import CustomerMap from "./CustomerMap";
 import { getWifiRTTLocation } from "./WifiRTTLocation";
@@ -199,5 +200,9 @@ function CustomerLeftSection({ selectedProduct, onShelfSelect }) {
             </>
       );
 }
+CustomerLeftSection.propTypes = {
+      selectedProduct: PropTypes.object.isRequired,
+      onShelfSelect: PropTypes.func.isRequired,
+};
 
 export default CustomerLeftSection;

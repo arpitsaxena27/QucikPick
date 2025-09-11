@@ -1,4 +1,5 @@
 import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
+import PropTypes from "prop-types";
 
 // Create styles
 const styles = StyleSheet.create({
@@ -165,6 +166,25 @@ const Receipt = ({ orderData }) => {
                   </Page>
             </Document>
       );
+};
+Receipt.propTypes = {
+      orderData: PropTypes.shape({
+            razorpay_payment_id: PropTypes.string.isRequired,
+            razorpay_order_id: PropTypes.string.isRequired,
+            items: PropTypes.arrayOf(
+                  PropTypes.shape({
+                        productName: PropTypes.string.isRequired,
+                        price: PropTypes.number.isRequired,
+                  })
+            ).isRequired,
+            total: PropTypes.number.isRequired,
+            subtotal: PropTypes.number.isRequired,
+            tax: PropTypes.number.isRequired,
+            bag: PropTypes.number.isRequired,
+            date: PropTypes.string.isRequired,
+            customerName: PropTypes.string.isRequired,
+            billingAddress: PropTypes.string.isRequired,
+      }).isRequired,
 };
 
 export default Receipt;

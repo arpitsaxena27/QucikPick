@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import PropTypes from 'prop-types';
 
 function DijkstraComponent({ source, destination }) {
     const [path, setPath] = useState([]);
@@ -106,5 +107,9 @@ function DijkstraComponent({ source, destination }) {
 
     return null;
 }
+DijkstraComponent.propTypes = {
+    source: PropTypes.string.isRequired,
+    destination: PropTypes.string.isRequired,
+};
 
 export default DijkstraComponent;

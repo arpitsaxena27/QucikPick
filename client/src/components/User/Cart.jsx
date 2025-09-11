@@ -10,6 +10,7 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useNavigate } from "react-router-dom";
+import PropTypes from "prop-types";
 
 function Cart({cart,isCartOpen,toggleCart,setCart}) {
       
@@ -83,5 +84,11 @@ function Cart({cart,isCartOpen,toggleCart,setCart}) {
                   </Drawer></>
   )
 }
+Cart.propTypes = {
+    cart: PropTypes.array.isRequired,
+    isCartOpen: PropTypes.bool.isRequired,
+    toggleCart: PropTypes.func.isRequired,
+    setCart: PropTypes.func.isRequired,
+};
 
 export default Cart

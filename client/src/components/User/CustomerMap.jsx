@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import PropTypes from "prop-types";
 import { motion } from "framer-motion";
 
 // BFS Pathfinder
@@ -411,6 +412,37 @@ const CustomerMap = ({
                   </div>
             </>
       );
+};
+AnimatedPath.propTypes = {
+      points: PropTypes.arrayOf(
+            PropTypes.shape({
+                  x: PropTypes.number.isRequired,
+                  y: PropTypes.number.isRequired,
+            })
+      ).isRequired,
+};
+
+CustomerMap.propTypes = {
+      mapImage: PropTypes.string,
+      shelves: PropTypes.arrayOf(
+            PropTypes.shape({
+                  nid: PropTypes.string,
+                  boundingBox: PropTypes.shape({
+                        x: PropTypes.number,
+                        y: PropTypes.number,
+                        width: PropTypes.number,
+                        height: PropTypes.number,
+                  }),
+            })
+      ),
+      selectedProduct: PropTypes.shape({
+            nid: PropTypes.string,
+      }),
+      onShelfClick: PropTypes.func,
+      startLocation: PropTypes.shape({
+            x: PropTypes.number.isRequired,
+            y: PropTypes.number.isRequired,
+      }),
 };
 
 export default CustomerMap;

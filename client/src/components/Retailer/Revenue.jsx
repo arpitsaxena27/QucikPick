@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
+import { useState,useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
       Box,
@@ -17,7 +17,6 @@ import {
       Grid,
       CircularProgress,
       Tooltip,
-      useTheme,
       IconButton,
       Button,
 } from "@mui/material";
@@ -102,7 +101,7 @@ StatCard.propTypes = {
       color: PropTypes.string.isRequired,
 };
 
-const Revenue = ({ martId }) => {
+const Revenue = () => {
       const navigate = useNavigate();
 
       const handleBackToMap = () => {
@@ -130,7 +129,6 @@ const Revenue = ({ martId }) => {
                   // You might want to add a toast/snackbar here to show the error
             }
       };
-      const theme = useTheme();
       const [payments, setPayments] = useState([]);
       const [loading, setLoading] = useState(true);
       const [page, setPage] = useState(0);

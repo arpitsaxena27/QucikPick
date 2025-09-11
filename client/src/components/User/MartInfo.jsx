@@ -2,9 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
-      selectUserRole,
       selectShelves,
-      selectLoading,
       selectProducts,
       fetchShelfInfoByMartId,
       fetchProducts,
@@ -52,7 +50,6 @@ const MartInfo = () => {
 
       // Redux state selectors
       const shelves = useSelector(selectShelves);
-      const loading = useSelector(selectLoading);
       const products = useSelector(selectProducts);
 
       // Fetch initial shelves data and set mart ID

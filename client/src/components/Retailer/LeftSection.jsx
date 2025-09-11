@@ -1,5 +1,6 @@
 import RetailMap from "./RetailMap";
 import { useState, useRef, useEffect } from "react";
+import PropTypes from "prop-types";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import { selectShelves } from "../../store/slices/productsSlice";
@@ -32,7 +33,6 @@ function LeftSection({ updateCount }) {
 
       const [isPinMode, setIsPinMode] = useState(false);
       const [pins, setPins] = useState([]);
-      const mapContainerRef = useRef(null);
       const handleMouseDown = (e) => {
             e.preventDefault();
             setIsDragging(true);
@@ -489,5 +489,8 @@ function LeftSection({ updateCount }) {
             </>
       );
 }
+LeftSection.propTypes = {
+      updateCount: PropTypes.func.isRequired,
+};
 
 export default LeftSection;
