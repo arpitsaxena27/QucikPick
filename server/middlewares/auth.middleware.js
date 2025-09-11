@@ -1,6 +1,31 @@
 import jwt from "jsonwebtoken";
 import AppError from "../utils/appError.js";
 
+const verifyAndDebugToken = (token, secret) => {
+      try {
+            // First try to decode without verification
+            const decoded = jwt.decode(token);
+            console.log("Token payload:", decoded);
+            console.log(
+                  "Token expiry:",
+                  decoded ? new Date(decoded.exp * 1000).toISOString() : "N/A"
+            );
+
+            // Now try to verify
+            const verified = jwt.verify(token, secret);
+            console.log("Token verified successfully");
+            return verified;
+      } catch (error) {
+            console.log("Token verification failed:", {
+                  error: error.message,
+                  name: error.name,
+                  tokenFirstPart: token.split(".")[0],
+                  secretLength: secret.length,
+            });
+            return null;
+      }
+};
+
 export const isLoggedIn = async (req, res, next) => {
       try {
             console.log("Environment:", {
