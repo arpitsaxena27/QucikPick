@@ -8,6 +8,7 @@ const cookieExpiryDays = parseInt(process.env.COOKIE_EXPIRY) || 1;
 const cookieOptions = {
       expires: new Date(Date.now() + cookieExpiryDays * 24 * 60 * 60 * 1000),
       httpOnly: true,
+      sameSite: "none",
       secure: process.env.NODE_ENV === "production", // will be false in development
 };
 
