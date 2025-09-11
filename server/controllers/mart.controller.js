@@ -3,6 +3,45 @@ import AppError from "../utils/appError.js";
 import cloudinary from "cloudinary";
 import fs from "fs/promises";
 
+// Helper function to calculate polygon area using Shoelace formula
+const calculatePolygonArea = (points) => {
+      let area = 0;
+      const n = points.length;
+
+      for (let i = 0; i < n; i++) {
+            const j = (i + 1) % n;
+            area += points[i].x * points[j].y;
+            area -= points[j].x * points[i].y;
+      }
+
+      return Math.abs(area) / 2;
+};
+
+// Helper function to calculate if a polygon is convex
+const isPolygonConvex = (points) => {
+      if (points.length < 3) return false;
+
+      let sign = 0;
+      const n = points.length;
+
+      for (let i = 0; i < n; i++) {
+            const p1 = points[i];
+            const p2 = points[(i + 1) % n];
+            const p3 = points[(i + 2) % n];
+
+            // Calculate cross product
+            const cross =
+                  (p2.x - p1.x) * (p3.y - p1.y) - (p2.y - p1.y) * (p3.x - p1.x);
+
+            if (i === 0) {
+                  sign = Math.sign(cross);
+            } else if (sign * cross < 0) {
+                  return false;
+            }
+      }
+      return true;
+};
+
 // Create a new mart
 export const createMart = async (req, res, next) => {
       try {
@@ -24,6 +63,8 @@ export const createMart = async (req, res, next) => {
                         )
                   );
             }
+
+            // Create the mart
             const newMart = await Mart.create({
                   storeName,
                   storeMap: {
@@ -33,6 +74,15 @@ export const createMart = async (req, res, next) => {
                   address,
                   retailerId,
             });
+
+            // Create payment record for the mart
+            const Payment = (await import("../models/Payment.model.js"))
+                  .default;
+            await Payment.create({
+                  martId: newMart._id,
+                  retailerId,
+                  payments: [], // Initially empty array of payments
+            });
             //FILE upload to cloudinary and delete from local storage after getting the url
             if (req.file) {
                   try {
@@ -40,9 +90,6 @@ export const createMart = async (req, res, next) => {
                               req.file.path,
                               {
                                     folder: "marts",
-                                    width: 500,
-                                    height: 500,
-                                    crop: "fill",
                               }
                         );
 
@@ -156,12 +203,10 @@ export const getMartByRetailerId = async (req, res, next) => {
       try {
             const { retailerId } = req.params;
             if (!retailerId) {
-                  return res
-                        .status(400)
-                        .json({
-                              success: false,
-                              message: "Retailer ID is required",
-                        });
+                  return res.status(400).json({
+                        success: false,
+                        message: "Retailer ID is required",
+                  });
             }
             const mart = await Mart.findOne({ retailerId });
             if (!mart) {
@@ -171,6 +216,150 @@ export const getMartByRetailerId = async (req, res, next) => {
                   });
             }
             res.status(200).json({ success: true, mart });
+      } catch (error) {
+            return next(new AppError(error.message, 500));
+      }
+};
+
+// Get mart by ID
+export const getMartById = async (req, res, next) => {
+      try {
+            const { id } = req.params;
+            if (!id) {
+                  return res.status(400).json({
+                        success: false,
+                        message: "Mart ID is required",
+                  });
+            }
+            const mart = await Mart.findById(id);
+            if (!mart) {
+                  return next(new AppError("Mart not found", 404));
+            }
+            res.status(200).json({ success: true, mart });
+      } catch (error) {
+            return next(new AppError(error.message, 500));
+      }
+};
+
+// Add multiple shelves to a mart
+export const addMultipleShelves = async (req, res, next) => {
+      try {
+            const { martId } = req.params;
+            const { shelves } = req.body;
+
+            console.log("Received request:", {
+                  martId,
+                  shelves: shelves,
+            });
+
+            if (!Array.isArray(shelves) || shelves.length === 0) {
+                  return next(
+                        new AppError(
+                              "Shelves array is required and cannot be empty",
+                              400
+                        )
+                  );
+            }
+
+            const mart = await Mart.findById(martId);
+            if (!mart) {
+                  return next(new AppError("Mart not found", 404));
+            }
+
+            // Check if shelves already exist
+            if (mart.shelves && mart.shelves.length > 0) {
+                  return res.status(200).json({
+                        success: false,
+                        message: "Shelves already exist for this mart",
+                        shelves: mart.shelves,
+                  });
+            }
+
+            // Validate each shelf object in the array
+            for (const [index, shelf] of shelves.entries()) {
+                  console.log(`Validating shelf ${index}:`, shelf);
+
+                  if (!shelf.name) {
+                        return next(
+                              new AppError(
+                                    `Shelf ${index} is missing name`,
+                                    400
+                              )
+                        );
+                  }
+                  if (!shelf.nid) {
+                        return next(
+                              new AppError(`Shelf ${index} is missing nid`, 400)
+                        );
+                  }
+                  if (!shelf.points) {
+                        return next(
+                              new AppError(
+                                    `Shelf ${index} is missing points`,
+                                    400
+                              )
+                        );
+                  }
+                  if (!shelf.boundingBox) {
+                        return next(
+                              new AppError(
+                                    `Shelf ${index} is missing boundingBox`,
+                                    400
+                              )
+                        );
+                  }
+
+                  // Validate points array
+                  if (!Array.isArray(shelf.points) || shelf.points.length < 3) {
+                        return next(
+                              new AppError(
+                                    `Shelf ${index} must have at least 3 points`,
+                                    400
+                              )
+                        );
+                  }
+
+                  // Validate boundingBox structure
+                  const { x, y, width, height } = shelf.boundingBox;
+                  if (
+                        typeof x !== "number" ||
+                        typeof y !== "number" ||
+                        typeof width !== "number" ||
+                        typeof height !== "number"
+                  ) {
+                        return next(
+                              new AppError(
+                                    `Shelf ${index} has invalid boundingBox properties`,
+                                    400
+                              )
+                        );
+                  }
+            }
+
+            // Calculate area and isConvex for each shelf before adding
+            const processedShelves = shelves.map((shelf) => {
+                  // Calculate area from points
+                  const area = calculatePolygonArea(shelf.points);
+
+                  // Calculate isConvex
+                  const isConvex = isPolygonConvex(shelf.points);
+
+                  return {
+                        ...shelf,
+                        area,
+                        isConvex,
+                  };
+            });
+
+            // Add all processed shelves to the mart
+            mart.shelves.push(...processedShelves);
+            await mart.save();
+
+            res.status(200).json({
+                  success: true,
+                  message: "Shelves added successfully",
+                  shelves: mart.shelves,
+            });
       } catch (error) {
             return next(new AppError(error.message, 500));
       }

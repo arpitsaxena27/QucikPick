@@ -17,6 +17,20 @@ const objectSchema = new mongoose.Schema(
                   {
                         name: { type: String, required: true },
                         nid: { type: String, required: true },
+                        area: { type: Number },
+                        isConvex: { type: Boolean },
+                        boundingBox: {
+                              x: { type: Number },
+                              y: { type: Number },
+                              width: { type: Number },
+                              height: { type: Number },
+                        },
+                        points: [
+                              {
+                                    x: { type: Number },
+                                    y: { type: Number },
+                              },
+                        ],
                         products: [
                               {
                                     productName: {

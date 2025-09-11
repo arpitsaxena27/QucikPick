@@ -24,7 +24,7 @@ function Cart({cart,isCartOpen,toggleCart,setCart}) {
   return (
     <>
                       <Drawer anchor="right" open={isCartOpen} onClose={toggleCart}>
-                        <div className="w-80 pt-10 md:pt-2 p-4 h-full md:h-auto bg-[#ffc221] shadow-md">
+                        <div className="w-80 pt-10 md:pt-2 p-4 h-full bg-[#ffc221] shadow-md">
                               <div className="flex justify-between items-center mb-4">
                                     <Typography variant="h6">
                                           Shopping Cart ({cart.length})

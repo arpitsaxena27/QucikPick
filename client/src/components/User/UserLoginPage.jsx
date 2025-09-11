@@ -99,7 +99,7 @@ const UserLoginPage = () => {
       };
 
       return (
-            <div className="flex flex-col md:flex-row h-screen w-full bg-[#ffc221]">
+            <div className="flex pt-10 md:pt-0 flex-col md:flex-row h-screen w-full bg-[#ffc221]">
                   {/* Left Panel - Login & Sign-Up */}
                   <div className="w-full md:w-1/2 flex justify-center items-center p-5">
                         <div

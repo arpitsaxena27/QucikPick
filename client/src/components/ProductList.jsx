@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Plus, Edit, Trash2 } from "lucide-react"; // Importing icons
@@ -11,6 +10,7 @@ import {
       fetchShelfInfo,
       updateShelfName,
       fetchProductsByShelf,
+      setShelvesState,
 } from "../store/slices/productsSlice";
 import {
       CircularProgress,
@@ -57,9 +57,11 @@ const ProductList = ({
             price: "",
             quantity: "",
             imageUrl: "",
+            imageFile: null,
             nid: "",
             name: "",
       });
+      const [imageInputType, setImageInputType] = useState("url"); // "url" or "file"
       const [shelfDialogOpen, setShelfDialogOpen] = useState(false);
       const [newShelfName, setNewShelfName] = useState("");
 
@@ -74,27 +76,18 @@ const ProductList = ({
             dispatch(fetchShelfInfo());
       }, [dispatch]);
 
-      useEffect(() => {
-            if (storeProducts.length > 0) {
-                  setFilteredProducts(shuffleArray(storeProducts));
-            }
-      }, [storeProducts]);
+      // Remove the shuffle effect as it interferes with proper filtering
 
       useEffect(() => {
             const query = (searchQuery || "").trim().toLowerCase();
-            const newCategory = selectedCategory.trim().toLowerCase();
-            console.log(selectedCategory);
 
+            // Only filter by search query since shelf filtering is handled by the API
             let newFilteredProducts = storeProducts.filter((product) => {
-                  const matchesQuery =
+                  return (
                         product.productName &&
                         typeof product.productName === "string" &&
-                        product.productName.toLowerCase().includes(query);
-                  const matchesCategory = newCategory
-                        ? product.nid &&
-                          product.nid.toLowerCase() === newCategory
-                        : true;
-                  return matchesQuery && matchesCategory;
+                        product.productName.toLowerCase().includes(query)
+                  );
             });
 
             if (sortOrder === "price_asc") {
@@ -211,6 +204,26 @@ const ProductList = ({
                   return;
             }
 
+            // Update shelf name in UI immediately
+            const updatedShelves = shelves.map((shelf) =>
+                  shelf.nid === selectedCategory
+                        ? { ...shelf, name: newShelfName.trim() }
+                        : shelf
+            );
+
+            // Update filtered products to show new shelf name immediately
+            const updatedProducts = filteredProducts.map((product) =>
+                  product.nid === selectedCategory
+                        ? { ...product, name: newShelfName.trim() }
+                        : product
+            );
+
+            // Update both states immediately
+            dispatch(setShelvesState(updatedShelves));
+            setFilteredProducts(updatedProducts);
+
+            setShelfDialogOpen(false);
+
             try {
                   await dispatch(
                         updateShelfName({
@@ -220,16 +233,28 @@ const ProductList = ({
                         })
                   ).unwrap();
 
-                  // Refresh shelves UI if needed
-                  if (martId) {
-                        dispatch(fetchProducts({ martId }));
-                  }
-
-                  setShelfDialogOpen(false);
-                  alert("Shelf name updated successfully!");
+                  // Don't need to show success message as UI is already updated
             } catch (error) {
                   console.error("Error updating shelf name:", error);
-                  alert("Failed to update shelf name. Please try again.");
+                  // Revert both UI changes on error
+                  const revertShelves = shelves.map((shelf) =>
+                        shelf.nid === selectedCategory
+                              ? { ...shelf, name: shelf.name }
+                              : shelf
+                  );
+                  const originalShelf = shelves.find(
+                        (s) => s.nid === selectedCategory
+                  );
+                  const revertProducts = filteredProducts.map((product) =>
+                        product.nid === selectedCategory
+                              ? { ...product, name: originalShelf.name }
+                              : product
+                  );
+                  dispatch(setShelvesState(revertShelves));
+                  setFilteredProducts(revertProducts);
+                  alert(
+                        "Failed to update shelf name. Changes have been reverted."
+                  );
             }
       };
 
@@ -240,7 +265,10 @@ const ProductList = ({
                               !productForm.productName ||
                               !productForm.price ||
                               !productForm.quantity ||
-                              !productForm.imageUrl
+                              (imageInputType === "url" &&
+                                    !productForm.imageUrl) ||
+                              (imageInputType === "file" &&
+                                    !productForm.imageFile)
                         ) {
                               alert("Please fill in all required fields");
                               return;
@@ -251,15 +279,30 @@ const ProductList = ({
                               martId,
                         });
 
+                        const formData = new FormData();
+                        formData.append("productName", productForm.productName);
+                        formData.append("price", productForm.price);
+                        formData.append("quantity", productForm.quantity);
+                        formData.append("nid", productForm.nid);
+
+                        if (
+                              imageInputType === "file" &&
+                              productForm.imageFile
+                        ) {
+                              formData.append(
+                                    "productImage",
+                                    productForm.imageFile
+                              );
+                        } else if (
+                              imageInputType === "url" &&
+                              productForm.imageUrl
+                        ) {
+                              formData.append("imageUrl", productForm.imageUrl);
+                        }
+
                         const resultAction = await dispatch(
                               addProduct({
-                                    productData: {
-                                          productName: productForm.productName,
-                                          price: productForm.price,
-                                          quantity: productForm.quantity,
-                                          imageUrl: productForm.imageUrl,
-                                          nid: productForm.nid,
-                                    },
+                                    productData: formData,
                                     martId,
                               })
                         ).unwrap();
@@ -273,36 +316,37 @@ const ProductList = ({
                               dispatch(fetchProducts({ martId }));
                         }
                   } else {
-                        // Use new image URL if provided, otherwise use original
-                        const imageUrl =
-                              productForm.imageUrl ===
-                              productForm.originalImageUrl
-                                    ? productForm.originalImageUrl
-                                    : productForm.imageUrl ||
-                                      productForm.originalImageUrl;
+                        const formData = new FormData();
+                        formData.append("productName", productForm.productName);
+                        formData.append("price", productForm.price);
+                        formData.append("quantity", productForm.quantity);
+                        formData.append("nid", productForm.nid);
+
+                        if (
+                              imageInputType === "file" &&
+                              productForm.imageFile
+                        ) {
+                              formData.append(
+                                    "productImage",
+                                    productForm.imageFile
+                              );
+                        } else if (
+                              imageInputType === "url" &&
+                              productForm.imageUrl
+                        ) {
+                              formData.append("imageUrl", productForm.imageUrl);
+                        }
 
                         console.log("Updating product:", {
                               productId: editingProduct._id,
-                              productData: {
-                                    productName: productForm.productName,
-                                    price: productForm.price,
-                                    quantity: productForm.quantity,
-                                    imageUrl: imageUrl,
-                                    nid: productForm.nid,
-                              },
+                              formData: Object.fromEntries(formData),
                               martId,
                         });
 
                         const updateResult = await dispatch(
                               updateProduct({
                                     productId: editingProduct._id,
-                                    productData: {
-                                          productName: productForm.productName,
-                                          price: productForm.price,
-                                          quantity: productForm.quantity,
-                                          imageUrl: imageUrl,
-                                          nid: productForm.nid,
-                                    },
+                                    productData: formData,
                                     martId,
                               })
                         ).unwrap();
@@ -537,19 +581,114 @@ const ProductList = ({
                                                 required
                                           />
                                     </div>
-                                    <TextField
-                                          label="Image URL"
-                                          value={productForm.imageUrl}
-                                          onChange={(e) =>
-                                                setProductForm({
-                                                      ...productForm,
-                                                      imageUrl: e.target.value,
-                                                })
-                                          }
-                                          fullWidth
-                                          size="small"
-                                          required
-                                    />
+                                    <div className="space-y-2">
+                                          <div className="flex gap-4">
+                                                <label className="flex items-center">
+                                                      <input
+                                                            type="radio"
+                                                            value="url"
+                                                            checked={
+                                                                  imageInputType ===
+                                                                  "url"
+                                                            }
+                                                            onChange={(e) => {
+                                                                  setImageInputType(
+                                                                        e.target
+                                                                              .value
+                                                                  );
+                                                                  setProductForm(
+                                                                        {
+                                                                              ...productForm,
+                                                                              imageFile:
+                                                                                    null,
+                                                                        }
+                                                                  );
+                                                            }}
+                                                            className="mr-2"
+                                                      />
+                                                      Image URL
+                                                </label>
+                                                <label className="flex items-center">
+                                                      <input
+                                                            type="radio"
+                                                            value="file"
+                                                            checked={
+                                                                  imageInputType ===
+                                                                  "file"
+                                                            }
+                                                            onChange={(e) => {
+                                                                  setImageInputType(
+                                                                        e.target
+                                                                              .value
+                                                                  );
+                                                                  setProductForm(
+                                                                        {
+                                                                              ...productForm,
+                                                                              imageUrl: "",
+                                                                        }
+                                                                  );
+                                                            }}
+                                                            className="mr-2"
+                                                      />
+                                                      Upload Image
+                                                </label>
+                                          </div>
+                                          {imageInputType === "url" ? (
+                                                <TextField
+                                                      label="Image URL"
+                                                      value={
+                                                            productForm.imageUrl
+                                                      }
+                                                      onChange={(e) =>
+                                                            setProductForm({
+                                                                  ...productForm,
+                                                                  imageUrl: e
+                                                                        .target
+                                                                        .value,
+                                                            })
+                                                      }
+                                                      fullWidth
+                                                      size="small"
+                                                      required={
+                                                            imageInputType ===
+                                                            "url"
+                                                      }
+                                                />
+                                          ) : (
+                                                <div className="flex flex-col">
+                                                      <input
+                                                            type="file"
+                                                            accept="image/*"
+                                                            onChange={(e) =>
+                                                                  setProductForm(
+                                                                        {
+                                                                              ...productForm,
+                                                                              imageFile:
+                                                                                    e
+                                                                                          .target
+                                                                                          .files[0],
+                                                                        }
+                                                                  )
+                                                            }
+                                                            className="py-1"
+                                                            required={
+                                                                  imageInputType ===
+                                                                  "file"
+                                                            }
+                                                      />
+                                                      {productForm.imageFile && (
+                                                            <p className="text-sm text-gray-600 mt-1">
+                                                                  Selected:{" "}
+                                                                  {
+                                                                        productForm
+                                                                              .imageFile
+                                                                              .name
+                                                                  }
+                                                            </p>
+                                                      )}
+                                                </div>
+                                          )}
+                                    </div>
                                     <TextField
                                           label="Shelve name"
                                           value={productForm.name}

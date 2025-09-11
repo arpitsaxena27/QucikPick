@@ -25,7 +25,10 @@ import { RotateCcw } from "lucide-react"; // Importing icon
 import SearchIcon from "@mui/icons-material/Search";
 import MenuIcon from "@mui/icons-material/Menu";
 import ProductList from "../ProductList";
-import LeftSection from "../LeftSection";
+import LeftSection from "./LeftSection";
+import axios from "axios";
+
+const SERVER_URL = import.meta.env.VITE_SERVER_URL;
 
 const MartInfo = () => {
       const location = useLocation();
@@ -73,9 +76,24 @@ const MartInfo = () => {
       const handleSearch = (event) => setSearchQuery(event.target.value);
       const handleProductClick = (nid) => setDestination(nid);
       const toggleDrawer = () => setDrawerOpen(!drawerOpen);
-      const logOut = () => {
+      const logOut = async () => {
+            try {
+                  // Make logout API call
+                  await axios.post(`${SERVER_URL}/api/auth/logout`, {
+                        withCredentials: true,
+                  });
+                  
+                  // Clear any local storage
+                  localStorage.removeItem("user");
+                  
+                  // You can add any additional cleanup here
+                  
+                  // The Link component will handle the navigation to "/"
+            } catch (error) {
+                  console.error("Logout failed:", error);
+                  // Continue with local logout even if server logout fails
+            }
             toggleDrawer();
-            // Implement your logout logic here
       };
 
       const handleAddToCart = (product) => {
@@ -218,14 +236,7 @@ const MartInfo = () => {
                                     selectedCategory={selectedCategory}
                                     onAddToCart={handleAddToCart}
                                     userRole={userRole}
-                              />
-
-                              {/* {destination && (
-                                    <DijkstraComponent
-                                          source="n1"
-                                          destination={destination}
-                                    />
-                              )} */}
+                              />=
                         </div>
                   </div>
             </div>

@@ -23,12 +23,6 @@ function Marts() {
       const [search, setSearch] = useState("");
       const [drawerOpen, setDrawerOpen] = useState(false);
       const [marts, setMarts] = useState([]);
-      //       const marts = [
-      //       { id: 1, name: "Mart 1", location: "Clement Town" },
-      //       { id: 2, name: "Mart 2", location: "Clock Tower" },
-      //       { id: 3, name: "Mart 3", location: "Mussoorie" },
-      //       { id: 4, name: "Mart 4", location: "Ponta Sahib" },
-      // ];
       const [loading, setLoading] = useState(true);
       const [error, setError] = useState(null);
 
@@ -41,7 +35,7 @@ function Marts() {
                                     withCredentials: true,
                               }
                         );
-                        const martsData = response.data.marts
+                        const martsData = response.data.marts;
                         setMarts(
                               martsData.map((mart) => ({
                                     id: mart._id,
@@ -60,8 +54,23 @@ function Marts() {
             fetchMarts();
       }, []);
 
-      const logOut = () => {
-            // Implement your logout logic here
+      const logOut = async () => {
+            try {
+                  // Make logout API call
+                  await axios.post(`${SERVER_URL}/api/auth/logout`, {
+                        withCredentials: true,
+                  });
+
+                  // Clear any local storage
+                  localStorage.removeItem("user");
+
+                  // You can add any additional cleanup here
+
+                  // The Link component will handle the navigation to "/"
+            } catch (error) {
+                  console.error("Logout failed:", error);
+                  // Continue with local logout even if server logout fails
+            }
       };
 
       // Filter marts based on search query

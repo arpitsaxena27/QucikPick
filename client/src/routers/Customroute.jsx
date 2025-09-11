@@ -10,6 +10,7 @@ import RetailerHelp from "../components/Retailer/retailerHelp";
 import UserHelp from "../components/User/userHelp";
 import Checkout from "../components/User/Checkout";
 import LandingPage from "../components/LandingPage";
+import PaymentSuccess from "../components/User/PaymentSucess";
 
 function Customroute() {
     return (
@@ -25,6 +26,7 @@ function Customroute() {
           <Route path="/retailer-help" element={<RetailerHelp></RetailerHelp>} />
           <Route path="/user-help" element={<UserHelp></UserHelp>} />
           <Route path="/checkout" element={<Checkout></Checkout>} />
+          <Route path="/payment-success" element={<PaymentSuccess></PaymentSuccess>} />
         </Routes>
     );
   }

@@ -6,7 +6,9 @@ import morgan from "morgan";
 import errorMiddleware from "./middlewares/error.middleware.js";
 import userRoutes from "./routes/user.routes.js";
 import martRoutes from "./routes/mart.routes.js";
+import paymentRoutes from "./routes/payments.route.js";
 import cloudinary from "cloudinary";
+import Razorpay from "razorpay";
 
 // Configure dotenv
 dotenv.config();
@@ -35,17 +37,23 @@ app.use(
 app.use(cookieParser());
 app.use(morgan("dev"));
 
-//clodinary config 
+//clodinary config
 cloudinary.v2.config({
       cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
       api_key: process.env.CLOUDINARY_API_KEY,
       api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
+//razorpay config
+export const razorpay = new Razorpay({
+      key_id: process.env.RAZORPAY_KEY_ID,
+      key_secret: process.env.RAZORPAY_SECRET,
+});
 
 // Routes
 app.use("/api/auth", userRoutes);
-app.use('/api/mart', martRoutes);
+app.use("/api/mart", martRoutes);
+app.use("/api/payments", paymentRoutes);
 
 // Default catch all route - 404
 app.all("*", (_req, res) => {

@@ -40,28 +40,57 @@ export const fetchShelfInfo = createAsyncThunk(
       }
 );
 
-// New thunk to fetch shelf info by martId for user role
+// Thunk to fetch shelf info by martId (for both retailer and non-retailer users)
 export const fetchShelfInfoByMartId = createAsyncThunk(
       "products/fetchShelfInfoByMartId",
       async (martId) => {
             console.log("Fetching shelf info for martId:", martId);
-            const response = await axios.get(
-                  `${SERVER_URL}/api/mart/${martId}/shelves`,
-                  {
-                        withCredentials: true,
+            try {
+                  const response = await axios.get(
+                        `${SERVER_URL}/api/mart/${martId}/shelves`,
+                        {
+                              withCredentials: true,
+                        }
+                  );
+
+                  console.log("Mart Info Response:", response.data);
+                  const mart = response.data;
+
+                  if (!mart?.shelves) {
+                        throw new Error("No shelves found for this mart");
                   }
-            );
-            const mart = response.data;
-            console.log("User Shelf Info Response:", response.data);
-            const shelves = mart.shelves.map(({ nid, name }) => ({
-                  nid,
-                  name,
-            }));
-            console.log("Shelves:", shelves);
-            return {
-                  shelves,
-                  martId: mart._id,
-            };
+
+                  const shelves = mart.shelves.map(
+                        ({
+                              id,
+                              nid,
+                              name,
+                              boundingBox,
+                              points,
+                              area,
+                              isConvex,
+                              products,
+                        }) => ({
+                              id,
+                              nid,
+                              name,
+                              boundingBox,
+                              points,
+                              area,
+                              isConvex,
+                              products,
+                        })
+                  );
+
+                  console.log("Processed Shelves:", shelves);
+                  return {
+                        shelves,
+                        martId: mart._id,
+                  };
+            } catch (error) {
+                  console.error("Error fetching shelf info:", error);
+                  throw error;
+            }
       }
 );
 
@@ -100,38 +129,80 @@ export const fetchProductsByShelf = createAsyncThunk(
 export const addProduct = createAsyncThunk(
       "products/addProduct",
       async ({ productData, martId }) => {
-            // Format the data according to the server's expected structure
-            const formattedData = {
-                  productName: productData.productName,
-                  price: Number(productData.price),
-                  quantity: Number(productData.quantity),
-                  imageUrl: productData.imageUrl || productData.image,
+            let config = {
+                  withCredentials: true,
+                  headers: { "Content-Type": "multipart/form-data" },
             };
 
-            console.log("Sending formatted data:", formattedData);
+            // If productData is already FormData, use it directly
+            const formData =
+                  productData instanceof FormData
+                        ? productData
+                        : (() => {
+                                const fd = new FormData();
+                                fd.append(
+                                      "productName",
+                                      productData.productName
+                                );
+                                fd.append("price", Number(productData.price));
+                                fd.append(
+                                      "quantity",
+                                      Number(productData.quantity)
+                                );
+
+                                if (productData.imageFile) {
+                                      fd.append(
+                                            "productImage",
+                                            productData.imageFile
+                                      );
+                                } else if (
+                                      productData.imageUrl ||
+                                      productData.image
+                                ) {
+                                      fd.append(
+                                            "imageUrl",
+                                            productData.imageUrl ||
+                                                  productData.image
+                                      );
+                                }
+
+                                return fd;
+                          })();
+
+            console.log(
+                  "Sending product data to endpoint:",
+                  `${SERVER_URL}/api/mart/${martId}/shelves/${
+                        productData.nid || productData.get("nid")
+                  }/products`
+            );
 
             const response = await axios.post(
-                  `${SERVER_URL}/api/mart/${martId}/shelves/${productData.nid}/products`,
-                  formattedData,
-                  {
-                        headers: { "Content-Type": "application/json" },
-                        withCredentials: true,
-                  }
+                  `${SERVER_URL}/api/mart/${martId}/shelves/${
+                        productData.nid || productData.get("nid")
+                  }/products`,
+                  formData,
+                  config
             );
             return response.data.products;
       }
 );
 
 // Update product
+//EDIT BUG
 export const updateProduct = createAsyncThunk(
       "products/updateProduct",
       async ({ productId, productData, martId }) => {
+            if (!productData.nid) {
+                  throw new Error("Shelf nid is required for updating product");
+            }
+
             // Format the data according to the server's expected structure
             const formattedData = {
                   productName: productData.productName,
                   price: Number(productData.price),
                   quantity: Number(productData.quantity),
                   image: productData.imageUrl || productData.image,
+                  nid: productData.nid, // Preserve the nid
             };
 
             console.log("Sending formatted data for update:", formattedData);
@@ -146,6 +217,22 @@ export const updateProduct = createAsyncThunk(
             );
             console.log("Update response:", response.data);
             return response.data.product;
+      }
+);
+
+// Add multiple shelves and update UI
+export const addMultipleShelves = createAsyncThunk(
+      "products/addMultipleShelves",
+      async ({ martId, shelves }) => {
+            const response = await axios.post(
+                  `${SERVER_URL}/api/mart/${martId}/shelves/bulk`,
+                  { shelves },
+                  {
+                        headers: { "Content-Type": "application/json" },
+                        withCredentials: true,
+                  }
+            );
+            return response.data.shelves;
       }
 );
 
@@ -187,6 +274,20 @@ export const updateShelfName = createAsyncThunk(
       }
 );
 
+// Add new thunk for fetching map image
+export const fetchMapImage = createAsyncThunk(
+      "products/fetchMapImage",
+      async (martId) => {
+            const response = await axios.get(
+                  `${SERVER_URL}/api/mart/${martId}`,
+                  {
+                        withCredentials: true,
+                  }
+            );
+            return response.data.mart.storeMap.secure_url;
+      }
+);
+
 const productsSlice = createSlice({
       name: "products",
       initialState: {
@@ -198,9 +299,21 @@ const productsSlice = createSlice({
             isRoleLoading: false,
             roleError: null,
             retailerId: null, // <-- new state variable
-            martId: null, // <-- new state variable for mart ID
+            martId: localStorage.getItem("currentMartId"), // Initialize from localStorage
+            mapImage: null, // <-- new state variable for map image
       },
-      reducers: {},
+      reducers: {
+            setMartId: (state, action) => {
+                  state.martId = action.payload;
+                  // Store martId in localStorage when it's set
+                  if (action.payload) {
+                        localStorage.setItem("currentMartId", action.payload);
+                  }
+            },
+            setShelvesState: (state, action) => {
+                  state.shelves = action.payload;
+            },
+      },
       extraReducers: (builder) => {
             builder
                   .addCase(fetchProducts.pending, (state) => {
@@ -276,6 +389,12 @@ const productsSlice = createSlice({
                         state.loading = false;
                         state.shelves = action.payload.shelves;
                         state.martId = action.payload.martId;
+                        if (action.payload.martId) {
+                              localStorage.setItem(
+                                    "currentMartId",
+                                    action.payload.martId
+                              );
+                        }
                   })
                   .addCase(fetchShelfInfo.rejected, (state, action) => {
                         state.loading = false;
@@ -293,6 +412,12 @@ const productsSlice = createSlice({
                               state.loading = false;
                               state.shelves = action.payload.shelves;
                               state.martId = action.payload.martId;
+                              if (action.payload.martId) {
+                                    localStorage.setItem(
+                                          "currentMartId",
+                                          action.payload.martId
+                                    );
+                              }
                         }
                   )
                   .addCase(fetchShelfInfoByMartId.rejected, (state, action) => {
@@ -325,6 +450,20 @@ const productsSlice = createSlice({
                   .addCase(updateShelfName.rejected, (state, action) => {
                         state.loading = false;
                         state.error = action.error.message;
+                  })
+
+                  // Add cases for fetching map image
+                  .addCase(fetchMapImage.pending, (state) => {
+                        state.loading = true;
+                        state.error = null;
+                  })
+                  .addCase(fetchMapImage.fulfilled, (state, action) => {
+                        state.loading = false;
+                        state.mapImage = action.payload;
+                  })
+                  .addCase(fetchMapImage.rejected, (state, action) => {
+                        state.loading = false;
+                        state.error = action.error.message;
                   });
       },
 });
@@ -338,6 +477,9 @@ export const selectLoading = (state) => state.products.loading;
 export const selectError = (state) => state.products.error;
 export const selectShelves = (state) => state.products.shelves;
 export const selectRetailerId = (state) => state.products.retailerId;
-export const selectMartId = (state) => state.products.martId;
+export const { setMartId, setShelvesState } = productsSlice.actions;
+export const selectMartId = (state) =>
+      state.products.martId || localStorage.getItem("currentMartId");
+export const selectMapImage = (state) => state.products.mapImage;
 
 export default productsSlice.reducer;

@@ -103,21 +103,21 @@ export const loginUser = async (req, res, next) => {
 };
 
 export const logoutUser = (req, res, next) => {
-      try {
-            res.cookie("token", null, {
-                  secure: true,
-                  httpOnly: true,
-                  maxAge: 0,
-            });
+  try {
+    res.cookie("token", "", {
+      ...cookieOptions,         // reuse same flags as login
+      expires: new Date(0),     // force expire
+    });
 
-            res.status(200).json({
-                  success: true,
-                  message: "Logged out successfully",
-            });
-      } catch (error) {
-            return next(new AppError(error.message, 500));
-      }
+    res.status(200).json({
+      success: true,
+      message: "Logged out successfully",
+    });
+  } catch (error) {
+    return next(new AppError(error.message, 500));
+  }
 };
+
 
 export const getProfile = async (req, res, next) => {
       try {
