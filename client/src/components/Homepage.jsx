@@ -7,6 +7,7 @@ import retailBg from "../../public/retail_bg.jpg";
 import userBg from "../assets/images/user_bg.jpg";
 import defaultBg from "../assets/images/default_bg.jpg";
 import { Container, LoginOption } from "./StyledComponents";
+import { Zap } from "lucide-react";
 
 // Enhanced, responsive Homepage for the QuickPick project
 export default function Homepage() {
@@ -63,13 +64,27 @@ export default function Homepage() {
       return (
             <Container className="h-full w-full mt-0 flex flex-col items-center px-4  justify-between bg-gradient-to-b from-white via-slate-50 to-slate-100">
                   {/* Top header */}
+                  <style>{`
+        :root {
+          --walmart-blue: #0071CE;
+          --walmart-yellow: #FFC220;
+          --walmart-dark: #0C2D48;
+          --walmart-muted: rgba(12,45,72,0.08);
+        }
+      `}</style>
                   <div className=" flex items-center justify-between pt-3 pr-20 md:pr-[800px]">
                         <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center bg-[#0c3e7b] shadow-lg">
-                                    <img
-                                          src={shopIcon}
-                                          alt="QuickPick logo"
-                                          className="w-6 h-6 md:w-7 md:h-7"
+                              <div
+                                    className="h-10 w-10 rounded-md flex items-center justify-center"
+                                    style={{
+                                          background: "var(--walmart-yellow)",
+                                    }}
+                              >
+                                    <Zap
+                                          className="h-5 w-5"
+                                          style={{
+                                                color: "var(--walmart-dark)",
+                                          }}
                                     />
                               </div>
                               <div className="leading-tight">
@@ -258,9 +273,7 @@ export default function Homepage() {
                                                       }}
                                                       whileTap={{ scale: 0.97 }}
                                                       onClick={() =>
-                                                            handleLogin(
-                                                                  "user"
-                                                            )
+                                                            handleLogin("user")
                                                       }
                                                       className="w-full mt-5 md:w-auto ml-0 md:ml-4 px-6 py-3 
              text-sm md:text-base font-semibold 
