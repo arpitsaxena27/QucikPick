@@ -186,48 +186,81 @@ function LeftSection({ updateCount }) {
 
       const handleSubmit = async (e) => {
             e.preventDefault();
-            const formData = new FormData();
-            formData.append("storeName", storeData.storeName);
-            formData.append("address", storeData.address);
-            formData.append("retailerId", retailerId);
-            formData.append("storeMap", fileInputRef.current.files[0]);
 
             try {
-                  const response = await axios.post(
-                        `${SERVER_URL}/api/mart/`,
-                        formData,
-                        {
-                              headers: {
-                                    "Content-Type": "multipart/form-data",
-                              },
-                              withCredentials: true,
+                  const formData = new FormData();
+                  formData.append("storeName", storeData.storeName);
+                  formData.append("address", storeData.address);
+                  formData.append("retailerId", retailerId);
+
+                  if (fileInputRef.current.files[0]) {
+                        formData.append("storeMap", fileInputRef.current.files[0]);
+                  }
+
+                  const url = hasExistingMap
+                        ? `${SERVER_URL}/api/mart/${martId}`
+                        : `${SERVER_URL}/api/mart`;
+
+                  const method = hasExistingMap ? "PATCH" : "POST";
+
+                  const response = await axios({
+                        method,
+                        url,
+                        data: formData,
+                        headers: {
+                              "Content-Type": "multipart/form-data",
+                        },
+                        withCredentials: true,
+                  });
+
+                  if (response.data.success) {
+                        setIsDialogOpen(false);
+                        setHasExistingMap(true);
+                        setMartId(response.data.mart._id);
+
+                        // Clear file input
+                        if (fileInputRef.current) {
+                              fileInputRef.current.value = "";
                         }
-                  );
 
-                  if (response.data) {
-                        console.log(
-                              "Store data uploaded successfully:",
-                              response.data
+                        // Update storeData with new values
+                        setStoreData({
+                              storeName: response.data.mart.storeName,
+                              address: response.data.mart.address,
+                        });
+
+                        // Show success message
+                        alert(
+                              hasExistingMap
+                                    ? "Store updated successfully!"
+                                    : "Store created successfully!"
                         );
-                        // Store the martId from response
-                        setMartId(response.data.martId);
 
-                        if (shapeDetectorRef.current) {
+                        // Update count to trigger re-render of parent components if needed
+                        updateCount && updateCount();
+
+                        // If there's a new map, update the shape detector
+                        if (
+                              fileInputRef.current.files[0] &&
+                              shapeDetectorRef.current
+                        ) {
                               shapeDetectorRef.current.handleImageUpload(
                                     fileInputRef.current.files[0]
                               );
                         }
-                        setIsDialogOpen(false);
-                        setStoreData({ storeName: "", address: "" });
-                        setShowDetectGuide(true);
 
-                        // Auto-hide the guide after 10 seconds
-                        setTimeout(() => {
-                              setShowDetectGuide(false);
-                        }, 10000);
+                        // Show the detect guide
+                        setShowDetectGuide(true);
+                        setTimeout(() => setShowDetectGuide(false), 10000);
+                  } else {
+                        alert(
+                              response.data.message ||
+                                    "Error processing your request"
+                        );
                   }
             } catch (error) {
-                  console.error("Error uploading store data:", error);
+                  console.error("Error:", error);
+                  alert("An error occurred while processing your request");
             }
       };
 
@@ -246,7 +279,9 @@ function LeftSection({ updateCount }) {
                         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                               <div className="bg-white p-6 rounded-lg w-96">
                                     <h2 className="text-xl font-bold mb-4">
-                                          Upload Store Map
+                                          {hasExistingMap
+                                                ? "Update Store Map"
+                                                : "Upload Store Map"}
                                     </h2>
                                     <form
                                           onSubmit={handleSubmit}
@@ -318,7 +353,9 @@ function LeftSection({ updateCount }) {
                                                       type="submit"
                                                       className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
                                                 >
-                                                      Upload
+                                                      {hasExistingMap
+                                                            ? "Update"
+                                                            : "Upload"}
                                                 </button>
                                           </div>
                                     </form>
@@ -356,6 +393,19 @@ function LeftSection({ updateCount }) {
                         >
                               🔄
                         </button>
+                        {userRole === "retailer" && (
+                              <div className="relative inline-block group">
+                                    <button
+                                          onClick={() => setIsDialogOpen(true)}
+                                          className="bg-white p-2 rounded shadow-md border border-gray-300 hover:bg-blue-50"
+                                    >
+                                          🗺️
+                                    </button>
+                                    <span className="absolute top-5 left-1/2 -translate-x-1/2 mt-2 w-max bg-gray-800 text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                          Update Store Map
+                                    </span>
+                              </div>
+                        )}
 
                         {userRole === "retailer" && (
                               <>

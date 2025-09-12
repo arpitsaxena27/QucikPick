@@ -2,12 +2,12 @@ import { Router } from "express";
 import {
       createMart,
       deleteMart,
-      updateMartName,
       getMarts,
       getMartIdByIndex,
       getMartByRetailerId,
       getMartById,
       addMultipleShelves,
+      updateMart,
 } from "../controllers/mart.controller.js";
 import {
       addShelf,
@@ -34,7 +34,7 @@ router.post("/", isLoggedIn, upload.single("storeMap"), createMart);
 // Delete a mart by ID
 router.delete("/:id", isLoggedIn, deleteMart);
 // Update mart name by ID
-router.patch("/:id", isLoggedIn, updateMartName);
+router.patch("/:id", isLoggedIn, upload.single("storeMap"), updateMart);
 // Get list of marts
 router.get("/", isLoggedIn, getMarts);
 // Get mart by index of array

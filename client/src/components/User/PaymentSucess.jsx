@@ -90,13 +90,13 @@ const PaymentSuccess = () => {
                               <Stack spacing={2} className="w-full mt-2">
                                     <Button
                                           component={RouterLink}
-                                          to="/"
+                                          to="/MartInfo"
                                           variant="contained"
                                           size="large"
                                           fullWidth
                                           disableElevation
                                     >
-                                          Return to Dashboard
+                                          Return to Home
                                     </Button>
 
                                     {receiptData && (

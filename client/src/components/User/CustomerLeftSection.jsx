@@ -40,7 +40,7 @@ function CustomerLeftSection({ selectedProduct, onShelfSelect }) {
       }, [isTracking]);
 
       // Default entrance location (hardcoded)
-      const trance = { x: 16, y: 25 };
+      const trance = { x: 17, y: 19 };
 
       // State to hold current start location (starts with entrance)
       const [startLocation, setStartLocation] = useState(trance);

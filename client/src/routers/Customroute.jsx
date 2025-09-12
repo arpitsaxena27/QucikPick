@@ -15,8 +15,8 @@ import PaymentSuccess from "../components/User/PaymentSucess";
 function Customroute() {
     return (
         <Routes>
-          <Route path="/lp" element={<LandingPage />} />
-          <Route path="/" element={<HomePage />} />
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/lp" element={<HomePage />} />
           <Route path="/user-login" element={<UserLoginPage />} />
           <Route path="/retail-login" element={<RetailLoginPage />} />   
           <Route path="/mart" element={<Marts />} />

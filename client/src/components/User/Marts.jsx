@@ -11,6 +11,8 @@ import {
       List,
       ListItem,
       ListItemText,
+      Backdrop,
+      CircularProgress,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { motion } from "framer-motion";
@@ -55,6 +57,7 @@ function Marts() {
       }, []);
 
       const logOut = async () => {
+            setLoading(true);
             try {
                   // Make logout API call
                   await axios.post(`${SERVER_URL}/api/auth/logout`, {
@@ -70,6 +73,8 @@ function Marts() {
             } catch (error) {
                   console.error("Logout failed:", error);
                   // Continue with local logout even if server logout fails
+            } finally {
+                  setLoading(false);
             }
       };
 
@@ -82,6 +87,21 @@ function Marts() {
 
       return (
             <>
+                  <Backdrop
+                        open={loading}
+                        sx={{
+                              zIndex: 9999,
+                              backgroundColor: "rgba(0, 0, 0, 0.7)",
+                        }}
+                  >
+                        <div className="flex flex-col items-center p-5 bg-white rounded-lg shadow-md">
+                              <CircularProgress />
+                              <p className="mt-3 text-gray-600">
+                                    Loading marts...
+                              </p>
+                        </div>
+                  </Backdrop>
+
                   {/* Navigation Bar */}
                   <AppBar position="fixed" className="bg-[#0c3e7b]">
                         <Toolbar className="flex justify-between px-6 bg-[#0c3e7b]">
@@ -145,21 +165,7 @@ function Marts() {
 
                         {/* Marts Grid Section */}
                         <div className="grid grid-cols-1 mt-10 md:grid-cols-2 gap-8 w-full md:w-10/12">
-                              {loading ? (
-                                    <Typography
-                                          variant="h6"
-                                          className="text-blue-900 font-bold"
-                                    >
-                                          Loading marts...
-                                    </Typography>
-                              ) : error ? (
-                                    <Typography
-                                          variant="h6"
-                                          className="text-red-600 font-bold"
-                                    >
-                                          {error}
-                                    </Typography>
-                              ) : filteredMarts.length > 0 ? (
+                              { 
                                     filteredMarts.map((mart, index) => (
                                           <motion.div
                                                 key={mart.id}
@@ -198,16 +204,7 @@ function Marts() {
                                                             </CardContent>
                                                       </Card>
                                                 </Link>
-                                          </motion.div>
-                                    ))
-                              ) : (
-                                    <Typography
-                                          variant="h6"
-                                          className="text-blue-900 font-bold"
-                                    >
-                                          No marts found!
-                                    </Typography>
-                              )}
+                                          </motion.div>))}
                         </div>
                   </div>
             </>

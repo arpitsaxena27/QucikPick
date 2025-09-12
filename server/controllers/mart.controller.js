@@ -241,6 +241,72 @@ export const getMartById = async (req, res, next) => {
       }
 };
 
+// Update complete mart details including store map
+export const updateMart = async (req, res, next) => {
+      try {
+            const { id } = req.params;
+            const { storeName, address } = req.body;
+
+            const mart = await Mart.findById(id);
+            if (!mart) {
+                  return next(new AppError("Mart not found", 404));
+            }
+
+            // Update basic mart details
+            mart.storeName = storeName || mart.storeName;
+            mart.address = address || mart.address;
+
+            // Handle store map update if a new file is provided
+            if (req.file) {
+                  // Delete old image from cloudinary if it exists
+                  if (mart.storeMap && mart.storeMap.public_id) {
+                        try {
+                              await cloudinary.v2.uploader.destroy(
+                                    mart.storeMap.public_id
+                              );
+                        } catch (error) {
+                              console.error("Error deleting old image:", error);
+                        }
+                  }
+
+                  // Upload new image to cloudinary
+                  try {
+                        const fileData = await cloudinary.v2.uploader.upload(
+                              req.file.path,
+                              {
+                                    folder: "marts",
+                              }
+                        );
+
+                        if (fileData) {
+                              mart.storeMap.public_id = fileData.public_id;
+                              mart.storeMap.secure_url = fileData.secure_url;
+                              // Clear the shelves array as the map has changed
+                              mart.shelves = [];
+                              await fs.rm(`uploads/${req.file.filename}`);
+                        }
+                  } catch (error) {
+                        return next(
+                              new AppError(
+                                    "Error uploading store map image",
+                                    500
+                              )
+                        );
+                  }
+            }
+
+            await mart.save();
+
+            res.status(200).json({
+                  success: true,
+                  message: "Mart updated successfully",
+                  mart,
+            });
+      } catch (error) {
+            return next(new AppError(error.message, 500));
+      }
+};
+
 // Add multiple shelves to a mart
 export const addMultipleShelves = async (req, res, next) => {
       try {

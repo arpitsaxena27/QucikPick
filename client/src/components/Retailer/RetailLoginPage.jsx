@@ -7,17 +7,20 @@ import {
       Button,
       Typography,
       Link,
+      Backdrop,
+      CircularProgress,
 } from "@mui/material";
 import axios from "axios";
 import { useDispatch } from "react-redux";
-import {
-      fetchUserRole,
-} from "../../store/slices/productsSlice";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { fetchUserRole } from "../../store/slices/productsSlice";
 
 const SERVER_URL = import.meta.env.VITE_SERVER_URL;
 
 const UserLoginPage = () => {
       const [flipped, setFlipped] = useState(false);
+      const [isLoading, setIsLoading] = useState(false);
       const [formData, setFormData] = useState({ email: "", password: "" });
       const [signUpData, setSignUpData] = useState({
             email: "",
@@ -50,6 +53,7 @@ const UserLoginPage = () => {
 
       // Handle Login - POST request
       const handleLogin = async () => {
+            setIsLoading(true);
             try {
                   const response = await axios.post(
                         `${SERVER_URL}/api/auth/login`,
@@ -62,17 +66,40 @@ const UserLoginPage = () => {
                   console.log("Login Response:", response.data);
                   // Fetch user role after successful login
                   dispatch(fetchUserRole());
+                  toast.success("Login successful!", {
+                        position: "top-right",
+                        autoClose: 3000,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                  });
                   navigate("/retailer-map");
             } catch (error) {
                   console.error(
                         "Login Error:",
                         error.response?.data || error.message
                   );
+                  toast.error(
+                        error.response?.data?.message ||
+                              "Login failed. Please try again.",
+                        {
+                              position: "top-right",
+                              autoClose: 5000,
+                              hideProgressBar: false,
+                              closeOnClick: true,
+                              pauseOnHover: true,
+                              draggable: true,
+                        }
+                  );
+            } finally {
+                  setIsLoading(false);
             }
       };
 
       // Handle Sign-Up - POST request
       const handleSignUp = async () => {
+            setIsLoading(true);
             try {
                   console.log(SERVER_URL);
                   const formData = new FormData();
@@ -90,7 +117,14 @@ const UserLoginPage = () => {
                         }
                   );
                   console.log("Sign-Up Response:", response.data);
-                  alert("Account Created Successfully!");
+                  toast.success("Account created successfully!", {
+                        position: "top-right",
+                        autoClose: 3000,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                  });
                   setFlipped(false); // Flip back to login
                   // Fetch user role after successful sign up
                   dispatch(fetchUserRole());
@@ -100,165 +134,226 @@ const UserLoginPage = () => {
                         "Sign-Up Error:",
                         error.response?.data || error.message
                   );
+                  toast.error(
+                        error.response?.data?.message ||
+                              "Sign-up failed. Please try again.",
+                        {
+                              position: "top-right",
+                              autoClose: 5000,
+                              hideProgressBar: false,
+                              closeOnClick: true,
+                              pauseOnHover: true,
+                              draggable: true,
+                        }
+                  );
+            } finally {
+                  setIsLoading(false);
             }
       };
 
       return (
-            <div className="flex pt-10 md:pt-0 flex-col md:flex-row h-screen w-full bg-[#ffc221]">
-                  {/* Left Panel - Login & Sign-Up */}
-                  <div className="w-full md:w-1/2 flex justify-center items-center p-5">
-                        <div
-                              className={`w-full max-w-md shadow-md rounded-lg shadow-black bg-[#fff3d3] transition-transform duration-500 ${
-                                    flipped ? "rotate-y-180" : ""
-                              }`}
-                        >
-                              {/* Login Form */}
-                              {!flipped ? (
-                                    <CardContent className="flex flex-col items-center p-6">
-                                          <Typography
-                                                variant="h5"
-                                                className="pl-2"
-                                                fontWeight="bold"
-                                          >
-                                                RETAIL
-                                          </Typography>
-                                          <img
-                                                src="/retail_icon.png"
-                                                alt="User Icon"
-                                                className="h-16 w-16 my-2"
-                                          />
-                                          <Typography
-                                                variant="h6"
-                                                fontWeight="bold"
-                                          >
-                                                Login
-                                          </Typography>
-                                          <form className="w-full space-y-3">
-                                                <TextField
-                                                      fullWidth
-                                                      label="Email/User ID"
-                                                      name="email"
-                                                      variant="outlined"
-                                                      required
-                                                      onChange={handleChange}
+            <>
+                  <div className="flex pt-10 md:pt-0 flex-col md:flex-row h-screen w-full bg-[#ffc221]">
+                        <ToastContainer
+                              position="top-right"
+                              autoClose={5000}
+                              hideProgressBar={false}
+                              newestOnTop={false}
+                              closeOnClick
+                              rtl={false}
+                              pauseOnFocusLoss
+                              draggable
+                              pauseOnHover
+                              theme="light"
+                        />
+                        {/* Left Panel - Login & Sign-Up */}
+                        <div className="w-full md:w-1/2 flex justify-center items-center p-5">
+                              <div
+                                    className={`w-full max-w-md shadow-md rounded-lg shadow-black bg-[#fff3d3] transition-transform duration-500 ${
+                                          flipped ? "rotate-y-180" : ""
+                                    }`}
+                              >
+                                    {/* Login Form */}
+                                    {!flipped ? (
+                                          <CardContent className="flex flex-col items-center p-6">
+                                                <Typography
+                                                      variant="h5"
+                                                      className="pl-2"
+                                                      fontWeight="bold"
+                                                >
+                                                      RETAIL
+                                                </Typography>
+                                                <img
+                                                      src="/retail_icon.png"
+                                                      alt="User Icon"
+                                                      className="h-16 w-16 my-2"
                                                 />
-                                                <TextField
-                                                      fullWidth
-                                                      label="Password"
-                                                      name="password"
-                                                      type="password"
-                                                      variant="outlined"
-                                                      required
-                                                      onChange={handleChange}
-                                                />
-                                                <div className="flex justify-between w-full">
-                                                      <Link
-                                                            onClick={handleFlip}
-                                                      >
-                                                            Forgot Password?
-                                                      </Link>
-                                                      <Link
-                                                            onClick={handleFlip}
-                                                      >
-                                                            Create Account
-                                                      </Link>
-                                                </div>
-                                                <Button
-                                                      fullWidth
-                                                      variant="contained"
-                                                      color="primary"
-                                                      onClick={handleLogin}
+                                                <Typography
+                                                      variant="h6"
+                                                      fontWeight="bold"
                                                 >
                                                       Login
-                                                </Button>
-                                          </form>
-                                    </CardContent>
-                              ) : (
-                                    // Sign-Up Form
-                                    <CardContent className="flex flex-col items-center p-6">
-                                          <Typography
-                                                variant="h5"
-                                                fontWeight="bold"
-                                          >
-                                                Create Account
-                                          </Typography>
-                                          <form
-                                                className="w-full space-y-3 mt-6"
-                                                encType="multipart/form-data"
-                                          >
-                                                <TextField
-                                                      fullWidth
-                                                      label="Name"
-                                                      name="name"
-                                                      variant="outlined"
-                                                      required
-                                                      onChange={
-                                                            handleSignUpChange
-                                                      }
-                                                />
-                                                <TextField
-                                                      fullWidth
-                                                      label="Email"
-                                                      name="email"
-                                                      variant="outlined"
-                                                      required
-                                                      onChange={
-                                                            handleSignUpChange
-                                                      }
-                                                />
-                                                <TextField
-                                                      fullWidth
-                                                      label="Password"
-                                                      name="password"
-                                                      type="password"
-                                                      variant="outlined"
-                                                      required
-                                                      onChange={
-                                                            handleSignUpChange
-                                                      }
-                                                />
-                                                <input
-                                                      type="file"
-                                                      name="avatar"
-                                                      accept="image/*"
-                                                      onChange={
-                                                            handleSignUpChange
-                                                      }
-                                                      style={{
-                                                            marginTop: "8px",
-                                                            marginBottom: "8px",
-                                                      }}
-                                                />
-                                                <Button
-                                                      fullWidth
-                                                      variant="contained"
-                                                      color="primary"
-                                                      onClick={handleSignUp}
-                                                >
-                                                      Sign Up
-                                                </Button>
-                                                <div className="mt-2 flex justify-center gap-2">
-                                                      <Typography variant="subtitle1">
-                                                            Already have an
-                                                            account?
-                                                      </Typography>
-                                                      <Link
-                                                            onClick={handleFlip}
+                                                </Typography>
+                                                <form className="w-full space-y-3">
+                                                      <TextField
+                                                            fullWidth
+                                                            label="Email/User ID"
+                                                            name="email"
+                                                            variant="outlined"
+                                                            required
+                                                            onChange={
+                                                                  handleChange
+                                                            }
+                                                      />
+                                                      <TextField
+                                                            fullWidth
+                                                            label="Password"
+                                                            name="password"
+                                                            type="password"
+                                                            variant="outlined"
+                                                            required
+                                                            onChange={
+                                                                  handleChange
+                                                            }
+                                                      />
+                                                      <div className="flex justify-between w-full">
+                                                            <Link
+                                                                  onClick={
+                                                                        handleFlip
+                                                                  }
+                                                            >
+                                                                  Forgot
+                                                                  Password?
+                                                            </Link>
+                                                            <Link
+                                                                  onClick={
+                                                                        handleFlip
+                                                                  }
+                                                            >
+                                                                  Create Account
+                                                            </Link>
+                                                      </div>
+                                                      <Button
+                                                            fullWidth
+                                                            variant="contained"
+                                                            color="primary"
+                                                            onClick={
+                                                                  handleLogin
+                                                            }
                                                       >
                                                             Login
-                                                      </Link>
-                                                </div>
-                                          </form>
-                                    </CardContent>
-                              )}
+                                                      </Button>
+                                                </form>
+                                          </CardContent>
+                                    ) : (
+                                          // Sign-Up Form
+                                          <CardContent className="flex flex-col items-center p-6">
+                                                <Typography
+                                                      variant="h5"
+                                                      fontWeight="bold"
+                                                >
+                                                      Create Account
+                                                </Typography>
+                                                <form
+                                                      className="w-full space-y-3 mt-6"
+                                                      encType="multipart/form-data"
+                                                >
+                                                      <TextField
+                                                            fullWidth
+                                                            label="Name"
+                                                            name="name"
+                                                            variant="outlined"
+                                                            required
+                                                            onChange={
+                                                                  handleSignUpChange
+                                                            }
+                                                      />
+                                                      <TextField
+                                                            fullWidth
+                                                            label="Email"
+                                                            name="email"
+                                                            variant="outlined"
+                                                            required
+                                                            onChange={
+                                                                  handleSignUpChange
+                                                            }
+                                                      />
+                                                      <TextField
+                                                            fullWidth
+                                                            label="Password"
+                                                            name="password"
+                                                            type="password"
+                                                            variant="outlined"
+                                                            required
+                                                            onChange={
+                                                                  handleSignUpChange
+                                                            }
+                                                      />
+                                                      <input
+                                                            type="file"
+                                                            name="avatar"
+                                                            accept="image/*"
+                                                            onChange={
+                                                                  handleSignUpChange
+                                                            }
+                                                            style={{
+                                                                  marginTop:
+                                                                        "8px",
+                                                                  marginBottom:
+                                                                        "8px",
+                                                            }}
+                                                      />
+                                                      <Button
+                                                            fullWidth
+                                                            variant="contained"
+                                                            color="primary"
+                                                            onClick={
+                                                                  handleSignUp
+                                                            }
+                                                      >
+                                                            Sign Up
+                                                      </Button>
+                                                      <div className="mt-2 flex justify-center gap-2">
+                                                            <Typography variant="subtitle1">
+                                                                  Already have
+                                                                  an account?
+                                                            </Typography>
+                                                            <Link
+                                                                  onClick={
+                                                                        handleFlip
+                                                                  }
+                                                            >
+                                                                  Login
+                                                            </Link>
+                                                      </div>
+                                                </form>
+                                          </CardContent>
+                                    )}
+                              </div>
+                        </div>
+
+                        {/* Right Panel - Carousel */}
+                        <div className="w-full md:w-1/2 flex justify-center items-center bg-[#0c3e7b] p-16">
+                              <RightPaneContent />
                         </div>
                   </div>
 
-                  {/* Right Panel - Carousel */}
-                  <div className="w-full md:w-1/2 flex justify-center items-center bg-[#0c3e7b] p-16">
-                        <RightPaneContent />
-                  </div>
-            </div>
+                  {/* Loading Backdrop */}
+                  <Backdrop
+                        sx={{
+                              color: "#fff",
+                              zIndex: (theme) => theme.zIndex.drawer + 1,
+                        }}
+                        open={isLoading}
+                  >
+                        <div className="flex flex-col items-center p-5 bg-white rounded-lg shadow-md">
+                              <CircularProgress />
+                              <p className="mt-3 text-gray-600">
+                                    Processing your request...
+                              </p>
+                        </div>
+                  </Backdrop>
+            </>
       );
 };
 

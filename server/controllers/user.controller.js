@@ -8,7 +8,7 @@ const cookieExpiryDays = parseInt(process.env.COOKIE_EXPIRY) || 1;
 const cookieOptions = {
       expires: new Date(Date.now() + cookieExpiryDays * 24 * 60 * 60 * 1000),
       httpOnly: true,
-      sameSite: "none",
+      ...(process.env.NODE_ENV === "development" && { sameSite: "none" }),
       secure: process.env.NODE_ENV === "production", // will be false in development
 };
 
@@ -104,21 +104,20 @@ export const loginUser = async (req, res, next) => {
 };
 
 export const logoutUser = (req, res, next) => {
-  try {
-    res.cookie("token", "", {
-      ...cookieOptions,         // reuse same flags as login
-      expires: new Date(0),     // force expire
-    });
+      try {
+            res.cookie("token", "", {
+                  ...cookieOptions, // reuse same flags as login
+                  expires: new Date(0), // force expire
+            });
 
-    res.status(200).json({
-      success: true,
-      message: "Logged out successfully",
-    });
-  } catch (error) {
-    return next(new AppError(error.message, 500));
-  }
+            res.status(200).json({
+                  success: true,
+                  message: "Logged out successfully",
+            });
+      } catch (error) {
+            return next(new AppError(error.message, 500));
+      }
 };
-
 
 export const getProfile = async (req, res, next) => {
       try {
