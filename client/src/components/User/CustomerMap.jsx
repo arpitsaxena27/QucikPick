@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import { motion } from "framer-motion";
 
@@ -109,52 +109,81 @@ const CustomerMap = ({
       const [destShelf, setDestShelf] = useState(null);
       const [destColor, setDestColor] = useState("#ff0000");
       const scrollRef = useRef(null);
+      const [imageDimensions, setImageDimensions] = useState({
+            width: 0,
+            height: 0,
+      });
+      const gridSize = 30; // We keep this constant as it's our grid unit
 
-      const imageWidth = 1598;
-      const imageHeight = 790;
-      const gridSize = 30;
+      useEffect(() => {
+            if (mapImage) {
+                  const img = new Image();
+                  img.onload = () => {
+                        setImageDimensions({
+                              width: img.naturalWidth,
+                              height: img.naturalHeight,
+                        });
+                  };
+                  img.src = mapImage;
+            }
+      }, [mapImage]);
 
-      const gridCols = Math.ceil(imageWidth / gridSize);
-      const gridRows = Math.ceil(imageHeight / gridSize);
-
-      const buildGrid = (excludeNid) => {
-            const grid = Array.from({ length: gridRows }, () =>
-                  Array(gridCols).fill(0)
-            );
-            shelves.forEach((shelf) => {
-                  // Skip shelves without proper boundingBox data
+      const buildGrid = useCallback(
+            (excludeNid) => {
                   if (
-                        !shelf.boundingBox?.x ||
-                        !shelf.boundingBox?.y ||
-                        !shelf.boundingBox?.width ||
-                        !shelf.boundingBox?.height
+                        imageDimensions.width === 0 ||
+                        imageDimensions.height === 0
                   ) {
-                        return;
+                        return [];
                   }
-                  const xStart = Math.floor(shelf.boundingBox.x / gridSize);
-                  const yStart = Math.floor(shelf.boundingBox.y / gridSize);
-                  const xEnd = Math.floor(
-                        (shelf.boundingBox.x + shelf.boundingBox.width) /
-                              gridSize
+
+                  const cols = Math.ceil(imageDimensions.width / gridSize);
+                  const rows = Math.ceil(imageDimensions.height / gridSize);
+
+                  const grid = Array.from({ length: rows }, () =>
+                        Array(cols).fill(0)
                   );
-                  const yEnd = Math.floor(
-                        (shelf.boundingBox.y + shelf.boundingBox.height) /
-                              gridSize
-                  );
-                  for (let y = yStart; y <= yEnd; y++) {
-                        for (let x = xStart; x <= xEnd; x++) {
-                              if (
-                                    grid[y] &&
-                                    shelf.nid?.toLowerCase().trim() !==
-                                          excludeNid?.toLowerCase().trim()
-                              ) {
-                                    grid[y][x] = 1;
+
+                  shelves.forEach((shelf) => {
+                        // Skip shelves without proper boundingBox data
+                        if (
+                              !shelf.boundingBox?.x ||
+                              !shelf.boundingBox?.y ||
+                              !shelf.boundingBox?.width ||
+                              !shelf.boundingBox?.height
+                        ) {
+                              return;
+                        }
+                        const xStart = Math.floor(
+                              shelf.boundingBox.x / gridSize
+                        );
+                        const yStart = Math.floor(
+                              shelf.boundingBox.y / gridSize
+                        );
+                        const xEnd = Math.floor(
+                              (shelf.boundingBox.x + shelf.boundingBox.width) /
+                                    gridSize
+                        );
+                        const yEnd = Math.floor(
+                              (shelf.boundingBox.y + shelf.boundingBox.height) /
+                                    gridSize
+                        );
+                        for (let y = yStart; y <= yEnd; y++) {
+                              for (let x = xStart; x <= xEnd; x++) {
+                                    if (
+                                          grid[y] &&
+                                          shelf.nid?.toLowerCase().trim() !==
+                                                excludeNid?.toLowerCase().trim()
+                                    ) {
+                                          grid[y][x] = 1;
+                                    }
                               }
                         }
-                  }
-            });
-            return grid;
-      };
+                  });
+                  return grid;
+            },
+            [imageDimensions, gridSize, shelves]
+      );
 
       const gridToPixel = (p) => ({
             x: p.x * gridSize + gridSize / 2,
@@ -214,7 +243,7 @@ const CustomerMap = ({
                   setPath([]);
                   setDestShelf(null);
             }
-      }, [selectedProduct, shelves, startLocation]);
+      }, [selectedProduct, shelves, startLocation, buildGrid]);
 
       return (
             <>
@@ -232,11 +261,11 @@ const CustomerMap = ({
                         <div
                               className="flex items-center justify-center bg-gradient-to-br from-white to-gray-100 w-full h-full"
                               style={{
-                                    aspectRatio: `${imageWidth} / ${imageHeight}`,
+                                    aspectRatio: `${imageDimensions.width} / ${imageDimensions.height}`,
                               }}
                         >
                               <svg
-                                    viewBox={`0 0 ${imageWidth} ${imageHeight}`}
+                                    viewBox={`0 0 ${imageDimensions.width} ${imageDimensions.height}`}
                                     className="border border-gray-300 rounded-md w-full h-full"
                                     preserveAspectRatio="xMidYMid meet"
                               >
@@ -245,8 +274,8 @@ const CustomerMap = ({
                                                 href={mapImage}
                                                 x="0"
                                                 y="0"
-                                                width={imageWidth}
-                                                height={imageHeight}
+                                                width={imageDimensions.width}
+                                                height={imageDimensions.height}
                                           />
                                     ) : (
                                           <text x="100" y="100" fill="red">
