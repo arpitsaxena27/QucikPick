@@ -61,7 +61,7 @@ export default function Homepage() {
       };
 
       return (
-            <Container className="h-screen w-full mt-10 md:mt-0 flex flex-col items-center justify-center bg-gradient-to-b from-white via-slate-50 to-slate-100">
+            <Container className="h-max w-full mt-10 md:mt-0 flex flex-col items-center justify-center bg-gradient-to-b from-white via-slate-50 to-slate-100">
                   {/* Top header */}
                   <div className="pt-10 md:pt-0 absolute top-4 left-0 right-0 flex items-center justify-between px-4 md:px-16">
                         <div className="flex items-center gap-3">
