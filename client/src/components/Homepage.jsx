@@ -61,9 +61,9 @@ export default function Homepage() {
       };
 
       return (
-            <Container className="h-full w-full mt-10 md:mt-0 flex flex-col items-center justify-center bg-gradient-to-b from-white via-slate-50 to-slate-100">
+            <Container className="h-full w-full mt-0 flex flex-col items-center px-4  justify-between bg-gradient-to-b from-white via-slate-50 to-slate-100">
                   {/* Top header */}
-                  <div className="pt-10 md:pt-0 absolute top-4 left-0 right-0 flex items-center justify-between px-4 md:px-16">
+                  <div className=" flex items-center justify-between pt-3 pr-20 md:pr-[800px]">
                         <div className="flex items-center gap-3">
                               <div className="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center bg-[#0c3e7b] shadow-lg">
                                     <img
@@ -83,7 +83,7 @@ export default function Homepage() {
                         </div>
                   </div>
 
-                  <main className="w-full max-w-6xl px-4 md:px-12 py-20 md:py-32">
+                  <main className="w-full max-w-6xl mt-3">
                         <section className="mb-8 text-center px-2 md:px-0">
                               <motion.h2
                                     initial={{ opacity: 0, y: -10 }}
@@ -292,7 +292,7 @@ export default function Homepage() {
                         </section>
                   </main>
 
-                  <div className="absolute bottom-4 left-0 right-0 text-center text-xs text-slate-400">
+                  <div className="text-center text-xs text-slate-400 pb-3">
                         © {new Date().getFullYear()} QuickPick · Built for
                         Walmart Sparkathon
                   </div>
