@@ -8,8 +8,6 @@ import {
 import PropTypes from "prop-types";
 import { useSelector, useDispatch } from "react-redux";
 import axios from "axios";
-import LoadingOverlay from "../LoadingOverlay";
-import { Backdrop, CircularProgress } from "@mui/material";
 import {
       fetchUserRole,
       setMartId,
@@ -23,15 +21,8 @@ const RetailMap = forwardRef((props, ref) => {
             isPinMode,
             pins = [],
             onMapClick,
-            onMapLoad,
+            onMapLoad
       } = props;
-
-      const [loading, setLoading] = useState({
-            fetchingData: false,
-            processingImage: false,
-            uploadingImage: false,
-            savingShelves: false,
-      });
 
       RetailMap.propTypes = {
             shelves: PropTypes.array,
@@ -46,8 +37,6 @@ const RetailMap = forwardRef((props, ref) => {
       const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
       const [imageURL, setImageURL] = useState(null);
       const [isCvReady, setCvReady] = useState(false);
-      const [isLoading, setIsLoading] = useState(false);
-      const [isProcessing, setIsProcessing] = useState(false);
       const canvasRef = useRef(null);
       const SERVER_URL = import.meta.env.VITE_SERVER_URL;
       const dispatch = useDispatch();
@@ -83,7 +72,6 @@ const RetailMap = forwardRef((props, ref) => {
       useEffect(() => {
             const fetchData = async () => {
                   try {
-                        setIsLoading(true);
                         // First fetch user role to get retailer ID
                         await dispatch(fetchUserRole());
                         console.log("Retailer ID from store:", retailerId);
@@ -135,8 +123,6 @@ const RetailMap = forwardRef((props, ref) => {
                         }
                   } catch (error) {
                         console.error("Error fetching data:", error);
-                  } finally {
-                        setIsLoading(false);
                   }
             };
 
@@ -169,7 +155,6 @@ const RetailMap = forwardRef((props, ref) => {
                   console.error("OpenCV or canvas not ready.");
                   return;
             }
-            setIsProcessing(true);
             const canvas = canvasRef.current;
             if (canvas.width === 0 || canvas.height === 0) {
                   console.error("Canvas is empty or image not loaded.");
@@ -363,8 +348,6 @@ const RetailMap = forwardRef((props, ref) => {
                               error.response.data
                         );
                   }
-            } finally {
-                  setIsProcessing(false);
             }
 
             setDetectedShelves(finalShelves);
@@ -394,24 +377,6 @@ const RetailMap = forwardRef((props, ref) => {
 
       return (
             <>
-                  <Backdrop
-                        open={isLoading || isProcessing}
-                        style={{
-                              zIndex: 9999,
-                              color: "#fff",
-                              backgroundColor: "rgba(0, 0, 0, 0.7)",
-                        }}
-                  >
-                        <div className="flex flex-col items-center p-5 bg-white rounded-lg shadow-md">
-                              <CircularProgress />
-                              <p className="mt-3 text-gray-600">
-                                    {isProcessing
-                                          ? "Processing map..."
-                                          : "Loading map data..."}
-                              </p>
-                        </div>
-                  </Backdrop>
-
                   <canvas
                         id="canvasOutput"
                         ref={canvasRef}
