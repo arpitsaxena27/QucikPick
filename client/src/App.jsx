@@ -1,3 +1,5 @@
+// App.js
+import { useRef } from "react";
 import Customroute from "./routers/Customroute";
 import FullScreen from "./components/FullScreen";
 
