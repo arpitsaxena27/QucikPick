@@ -1,5 +1,3 @@
-// App.js
-import React, { useRef } from "react";
 import Customroute from "./routers/Customroute";
 import FullScreen from "./components/FullScreen";
 
@@ -18,7 +16,7 @@ export default function App() {
                   >
                         <FullScreen containerRef={appRef} />
 
-                        <main style={{ flex: 1 }}>
+                        <main>
                               <Customroute />
                         </main>
                   </div>
