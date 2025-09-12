@@ -63,7 +63,7 @@ export default function Homepage() {
       return (
             <Container className="min-h-screen w-full mt-10 md:mt-0 flex items-center justify-center bg-gradient-to-b from-white via-slate-50 to-slate-100">
                   {/* Top header */}
-                  <header className="pt-10 md:pt-0 absolute top-4 left-0 right-0 flex items-center justify-between px-4 md:px-16">
+                  <div className="pt-10 md:pt-0 absolute top-4 left-0 right-0 flex items-center justify-between px-4 md:px-16">
                         <div className="flex items-center gap-3">
                               <div className="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center bg-[#0c3e7b] shadow-lg">
                                     <img
@@ -81,21 +81,7 @@ export default function Homepage() {
                                     </p>
                               </div>
                         </div>
-                        <nav className="hidden md:flex items-center gap-3 text-sm text-slate-600">
-                              <button
-                                    onClick={() => navigate("/about")}
-                                    className="px-3 py-2 rounded hover:bg-slate-100"
-                              >
-                                    About
-                              </button>
-                              <button
-                                    onClick={() => navigate("/contact")}
-                                    className="px-3 py-2 rounded hover:bg-slate-100"
-                              >
-                                    Contact
-                              </button>
-                        </nav>
-                  </header>
+                  </div>
 
                   <main className="w-full max-w-6xl px-4 md:px-12 py-20 md:py-32">
                         <section className="mb-8 text-center px-2 md:px-0">
@@ -306,10 +292,10 @@ export default function Homepage() {
                         </section>
                   </main>
 
-                  <footer className="absolute bottom-4 left-0 right-0 text-center text-xs text-slate-400">
+                  <div className="absolute bottom-4 left-0 right-0 text-center text-xs text-slate-400">
                         © {new Date().getFullYear()} QuickPick · Built for
                         Walmart Sparkathon
-                  </footer>
+                  </div>
             </Container>
       );
 }
