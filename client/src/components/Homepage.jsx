@@ -62,7 +62,7 @@ export default function Homepage() {
       };
 
       return (
-            <Container className="h-screen w-full mt-0 flex flex-col items-center px-4  justify-between bg-gradient-to-b from-white via-slate-50 to-slate-100">
+            <Container className="min-h-screen md:h-screen w-full mt-0 flex flex-col items-center px-4 justify-between bg-gradient-to-b from-white via-slate-50 to-slate-100 pb-8 md:pb-0">
                   {/* Top header */}
                   <style>{`
         :root {
