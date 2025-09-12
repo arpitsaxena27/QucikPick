@@ -373,7 +373,7 @@ function LeftSection({ updateCount }) {
                               onClick={() =>
                                     setScale((prev) => Math.min(prev + 0.1, 3))
                               }
-                              className="bg-white p-2 rounded shadow-md border border-gray-300"
+                              className="bg-white p-2 mt-2 rounded shadow-md border border-gray-300"
                         >
                               ➕
                         </button>
