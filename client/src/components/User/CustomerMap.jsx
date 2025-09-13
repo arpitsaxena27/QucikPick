@@ -112,7 +112,7 @@ const CustomerMap = ({
 
       const [imageWidth, setImageWidth] = useState(1598);
       const [imageHeight, setImageHeight] = useState(790);
-      const gridSize = 30;
+      const gridSize = 20;
 
       useEffect(() => {
             if (mapImage) {
