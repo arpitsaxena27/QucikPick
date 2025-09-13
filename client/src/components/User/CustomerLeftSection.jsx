@@ -34,13 +34,13 @@ function CustomerLeftSection({ selectedProduct, onShelfSelect }) {
             const interval = setInterval(async () => {
                   const location = await getWifiRTTLocation();
                   setStartLocation(location);
-            }, 1000); // or 2000ms if you like
+            }, 1000);
 
             return () => clearInterval(interval);
       }, [isTracking]);
 
       // Default entrance location (hardcoded)
-      const trance = { x: 17, y: 19 };
+      const trance = { x: 26, y: 30 };
 
       // State to hold current start location (starts with entrance)
       const [startLocation, setStartLocation] = useState(trance);

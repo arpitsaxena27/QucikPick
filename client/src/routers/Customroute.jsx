@@ -30,4 +30,5 @@ function Customroute() {
         </Routes>
     );
   }
+
 export default Customroute;

@@ -191,7 +191,7 @@ const MartInfo = () => {
                                     to="/Mart"
                                     onClick={toggleDrawer}
                               >
-                                    <ListItemText primary="Stores" />
+                                    <ListItemText primary="Marts" />
                               </ListItem>
                               <ListItem
                                     button
