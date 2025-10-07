@@ -11,7 +11,7 @@ Using **Wi-Fi RTT precision navigation**, **RFID-secured checkout**, and a **dig
 
 ##  Customer Journey  
 1. **Plan Ahead** → Shoppers curate their cart in advance.  
-2. **Navigate Smarter** → Wi-Fi RTT provides **sub-meter accuracy**; a **dynamic map** guides shoppers via a **custom BFS pathfinding algorithm** on a JSON-based store layout.  
+2. **Navigate Smarter** → Wi-Fi RTT provides **sub-meter accuracy**; a **dynamic map** guides shoppers via a **Dijkstra's pathfinding algorithm** on a JSON-based store layout.  
 3. **Find Faster** → OpenCV-based shelf detection ensures accurate routing to shelves.  
 4. **Checkout Instantly** → Items confirmed in the digital cart are paid online.  
 5. **Exit Smoothly** → RFID tags secure exits; unpaid items trigger alerts.  
@@ -70,7 +70,7 @@ Using **Wi-Fi RTT precision navigation**, **RFID-secured checkout**, and a **dig
 
 ##  Tech Stack  
 
-- **Frontend:** React + Android WebView (hosted on [Vercel]([https://vercel.com/](https://quickpick1.vercel.app/)))  
+- **Frontend:** React + Android WebView (hosted on [Vercel]([https://vercel.com/](https://quickpick1.vercel.app/))  
 - **Backend:** Node.js + Express  
 - **Database:** MongoDB (NoSQL)  
 - **State Management:** Redux Toolkit  
