@@ -70,7 +70,7 @@ Using **Wi-Fi RTT precision navigation**, **RFID-secured checkout**, and a **dig
 
 ##  Tech Stack  
 
-- **Frontend:** React + Android WebView (hosted on [Vercel]([https://vercel.com/](https://quickpick1.vercel.app/))  
+- **Frontend:** React + Android WebView (hosted on [Vercel](https://quickpick1.vercel.app/))
 - **Backend:** Node.js + Express  
 - **Database:** MongoDB (NoSQL)  
 - **State Management:** Redux Toolkit  
